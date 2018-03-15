@@ -1,0 +1,28 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>La API de Reconocimiento de Voz en JavaScript: speechRecognition()</title>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
+</head>
+<body>
+	<div id="mensaje"></div>
+	<script>
+  window.addEventListener("load",()=>{
+  		if(annyang){
+  			var comandos={
+  				"buscar *valor":function(valor){
+  					document.querySelector("#mensaje").innerHTML=valor;
+  				}
+  			};
+  			annyang.addCommands(comandos);
+  			annyang.setLanguage("es");
+        annyang.debug();
+  			annyang.start();
+  		}
+});
+  </script>		
+</body>
+</html>

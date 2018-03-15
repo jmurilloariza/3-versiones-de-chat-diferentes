@@ -1,0 +1,248 @@
+<!Doctype html>
+<html>
+  <head>
+    <title>pagina</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+    html,body,.principal{
+      width: 100%;
+      height: 100%;
+    }
+    .panel_superior{
+      height: 80%;
+      margin-top: 20px;
+    }
+    .chat,.contactos{
+      height: 100%;
+    }
+    .panel_inferior{
+      margin-top: 30px;
+      border:solid 2px black;
+      border-radius: 10px;
+      margin-left: 50px;
+      padding-top: 12px;
+    }
+    .principal,.contenedor_boton_enviar,.contedor_barra_mensaje{
+      background-color: gray;
+    }
+    .chat{
+      border:solid 2px blue;
+      border-radius: 10px;
+      margin-left: 30px;
+    }
+    .contactos{
+      border:solid 2px red;
+      border-radius: 10px;
+      margin-left: 30px;
+    }
+    .login{
+      width: 100%;
+      height: 100%;
+      background-color: gray;
+      display: inherit;
+    }
+    .principal{
+      display: none;
+    }
+    .login input{
+    margin-top: 100px;
+    }
+    .boton_Ingresar{
+      margin-top: 30px;
+    }
+    .contactos div:hover{
+      background-color: yellow;
+    }
+
+    </style>
+  </head>
+  <body>
+    <div class="login col-lg-12">
+      <div class="col-lg-6 col-lg-push-3">
+          <input type="text" class="col-lg-12 form-control nombre" placeholder="Escribe tu Nombre de Usuario....">
+          <br>
+          <button class="col-lg-push-5 col-lg-2 btn btn-success boton_Ingresar">Ingresar</button>
+      </div>
+    </div>
+    <div class="col-lg-12 principal container">
+      <div class="col-lg-12 panel_superior">
+        <div class="col-lg-9 chat">
+            <div class="panel-heading">
+              <h3 class="panel-title">Chat</h3>
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+        <div class="col-lg-2 contactos">
+          <div class="panel-heading">
+            <h3 class="panel-title">Contactos</h3>
+          </div>
+          <div class="panel-body">
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-11 panel_inferior">
+        <div class="col-lg-11 panel contedor_barra_mensaje">
+            <input type="text" class="col-lg-12 form-control" id="barra_mensaje" placeholder="Escribe tu Mensaje......">
+
+        </div>
+          <div class="col-lg-1 panel contenedor_boton_enviar">
+            <button class="col-lg-12 btn btn-success boton_enviar">Enviar</button>
+         </div>
+      </div>
+  </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+
+      window.addEventListener("load",function(){
+        var barra_mensaje=document.querySelector("#barra_mensaje");
+        var boton_enviar=document.querySelector(".boton_enviar");
+        var chat=document.querySelector(".chat");
+        var contactos=document.querySelector(".contactos");
+        var nombre=document.querySelector(".nombre");
+        var login=document.querySelector(".login");
+        var boton_Ingresar=document.querySelector(".boton_Ingresar");
+        var principal=document.querySelector(".principal");
+        nombre.focus();
+        login.addEventListener("keyup",(e)=>{
+          if(e.keyCode=='13' && nombre.value.toString().length>0){
+            barra_mensaje.focus();
+            var seleccionado={id:4,nombre:"todos"};;
+            var chats={};
+            var id;
+            var vistos={};
+            login.style.display="none";
+            principal.style.display="inherit";
+            
+            var socket = io('192.168.0.32');
+            socket.on("recibirId",(data)=>{
+              id=data;
+            })
+            boton_enviar.addEventListener("click",()=>{
+              enviarMensaje();
+            });
+            barra_mensaje.addEventListener("keyup",(e)=>{
+              if(e.keyCode=='13'){
+                enviarMensaje();
+              }
+            });
+
+            function enviarMensaje(destinatario){
+              if(barra_mensaje.toString().length>0){
+                var tipo=2;
+                if(seleccionado.id!=4){
+                  tipo=3;
+                }
+              socket.emit("enviarMensaje",{
+                tipo:tipo,
+                id_emisor:id,
+                username:nombre.value,
+                mensaje:barra_mensaje.value,
+                destinatario:seleccionado.id
+              });
+              barra_mensaje.value="";
+              }
+            }
+            socket.emit("nombre",nombre.value);
+            socket.on("recibirMensaje",(data)=>{
+                agregarMensaje(data);
+            });
+            socket.on("recibirUsuarios",(data)=>{
+              contactos.innerHTML='<h3 class="panel-title">Contactos</h3><br>';
+			       var chats2={};
+             var vistosTemp={};
+              for(var i=0;i<data.length;i++){
+                if (data[i].id!=id) {
+          					if(chats[data[i].id]!=null){
+          					chats2[data[i].id]=chats[data[i].id];
+                    vistosTemp[data[i].id]=vistos[data[i].id];
+          					}else{
+                      vistosTemp[data[i].id]=0;
+                      vistos[data[i].id]=0;
+          						var element=document.createElement("div");
+          						element.className="col-lg-9 chat";
+          						var element2=document.createElement("div");
+          						element2.className="panel-heading";
+          						var element3=document.createElement("h3");
+          						element3.className="panel-title";
+          						var element4=document.createTextNode("Chat "+data[i].nombre);
+          						element3.appendChild(element4);
+          						element2.appendChild(element3);
+          						element.appendChild(element2);
+          						chats2[data[i].id]=element;
+          					}
+                   agregarContacto(data[i]);
+                }
+              }
+        			  chats=chats2;
+                vistos=vistosTemp;
+        			  if(seleccionado!=null&&chats[seleccionado.id]==null){
+        				seleccionado={id:4,nombre:"todos"};
+        				chat.innerHTML=chats[seleccionado.id].innerHTML;
+        			  }
+                document.getElementById(seleccionado.id).style.backgroundColor="skyblue";
+            })
+            function agregarMensaje(data){
+              var element=document.createElement("button");
+              var text1=document.createTextNode(data.mensaje+"  ");
+              element.className ="btn btn-primary";
+              element.appendChild(text1);
+              var element2=document.createElement("span");
+              element2.className ="badge";
+              var text2=document.createTextNode(data.username);
+              element2.appendChild(text2);
+              element.appendChild(element2);
+              if(data.tipo==2||data.id_emisor==id){
+                chats[data.destinatario].appendChild(element);
+                chats[data.destinatario].appendChild(document.createElement("br"));
+               if(seleccionado.id!=data.destinatario){
+                  vistos[data.destinatario]++;
+                    var text=document.getElementById(data.destinatario).innerHTML.toString();
+                   document.getElementById(data.destinatario).innerHTML=
+                   text.substring(0,text.indexOf('('))+"("+vistos[data.destinatario]+")";
+                }
+              }else{
+                chats[data.id_emisor].appendChild(element);
+                chats[data.id_emisor].appendChild(document.createElement("br"));
+               if(seleccionado.id!=data.id_emisor){
+                vistos[data.id_emisor]++;
+                var text=document.getElementById(data.id_emisor).innerHTML.toString();
+                 document.getElementById(data.id_emisor).innerHTML=
+                 text.substring(0,text.indexOf('('))+"("+vistos[data.id_emisor]+")";
+               }
+              }
+              chat.innerHTML=chats[seleccionado.id].innerHTML;
+            }
+           function agregarContacto(data){
+            var element=document.createElement("div");
+             element.addEventListener("click",(e)=>{
+      			 var labels=document.querySelectorAll(".contactos div");
+          			 for(var i=0;i<labels.length;i++){
+          				labels[i].style.backgroundColor ="gray";
+    			      }
+               seleccionado={nombre:e.target.innerHTML,id:e.target.id};
+               e.target.style.backgroundColor ="skyblue";
+               chat.innerHTML=chats[e.target.id].innerHTML;
+               vistos[e.target.id]=0;
+               var text=document.getElementById(seleccionado.id).innerHTML.toString();
+               document.getElementById(seleccionado.id).innerHTML=
+               text.substring(0,text.indexOf('('))+"("+vistos[e.target.id]+")";
+             });
+             var text=document.createTextNode(data.nombre+"("+vistos[data.id]+")");
+             element.id=data.id;
+             element.appendChild(text);
+             contactos.appendChild(element);
+             contactos.appendChild(document.createElement("br"));
+           }
+      }
+        });
+      });
+    </script>
+  </body>
+</html>

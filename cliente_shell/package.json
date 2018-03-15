@@ -1,0 +1,15 @@
+{
+  "name": "cliente_shell",
+  "version": "0.0.1",
+  "description": "",
+  "main": "cliente_shell.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node cliente_shell.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+   
+  }
+}

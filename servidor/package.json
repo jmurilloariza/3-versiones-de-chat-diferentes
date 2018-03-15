@@ -1,0 +1,17 @@
+{
+  "name": "chat_online",
+  "version": "0.0.1",
+  "description": "chat para la ufps, arquitectura de software",
+  "main": "principal.js",
+  "scripts": {
+    "test": "",
+    "start": "npm install && node servidor_principal.js"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "shortid": "*",
+    "ip": "*",
+    "socket.io": "*"
+  }
+}
